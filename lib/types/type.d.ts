@@ -20,7 +20,6 @@ export interface Bahnhof {
     hasCarRental: boolean,
     federalState: string,
     evaNumbers: BahnhofEvaNumber[],
-
 }
 
 export interface BahnhofEvaNumber {
@@ -42,10 +41,13 @@ export interface JourneyWrapper {
 }
 
 export interface Journey {
+    stop: JourneyStation;
+    plannedWhen: string;
     departure: string;
     plannedDeparture: string;
     departureDelay: number,
     arrival: string;
+    platform: string;
     plannedArrival: string;
     arrivalDelay: number;
     line: JourneyTrainData;
@@ -61,7 +63,7 @@ export interface Journey {
 export interface JourneyTrainData {
     type: string;
     id: string;
-    name: string;
+    name?: string;
     public: boolean;
     productName: string;
     mode: string;

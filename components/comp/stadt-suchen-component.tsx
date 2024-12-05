@@ -1,37 +1,35 @@
-"use client"
-
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {HTMLAttributes, useEffect, useRef, useState} from "react";
-import {getStations} from "@/lib/apiCalls";
-import {Bahnhof} from "@/lib/types/type";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { HTMLAttributes, useEffect, useRef, useState } from "react";
+import { getStations } from "@/lib/apiCalls";
+import { Bahnhof } from "@/lib/types/type";
 
 interface SearchboxProps extends HTMLAttributes<HTMLDivElement> {
-    setVal: (value: Bahnhof) => void;
+    setVal: (value: Bahnhof | null) => void;
     placeholder: string;
     title: string;
 }
 
-export default function Searchbox({setVal, placeholder, title, ...props}: SearchboxProps) {
+export default function Searchbox({ setVal, placeholder, title, ...props }: SearchboxProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
     const [value, setValue] = useState("");
     const [cities, setCities] = useState<Bahnhof[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
-    const [selectedCity, setSelectedCity] = useState<Bahnhof>();
+    const [selectedCity, setSelectedCity] = useState<Bahnhof | null>(null);
 
     // Function to fetch cities
     const completeCities = async () => {
         if (value === "") {
             setCities([]);
-            setShowDropdown(false); // Hide the dropdown if input is cleared
+            setShowDropdown(false);
             return;
         }
 
         try {
             const res = await getStations(value);
             setCities(res);
-            setShowDropdown(true); // Show the dropdown when results are available
+            setShowDropdown(true);
         } catch (error) {
             console.error("Error fetching cities:", error);
         }
@@ -39,7 +37,6 @@ export default function Searchbox({setVal, placeholder, title, ...props}: Search
 
     const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
     useEffect(() => {
-        // Clear the previous timer if it exists
         if (debounceTimer) {
             clearTimeout(debounceTimer);
         }
@@ -48,44 +45,53 @@ export default function Searchbox({setVal, placeholder, title, ...props}: Search
             if (value !== selectedCity?.name) {
                 completeCities();
             }
-        }, 500); // Adjust the debounce delay as needed
+        }, 500);
 
         setDebounceTimer(newTimer);
 
-        // Cleanup the timer on unmount or when value changes
         return () => {
             if (newTimer) {
                 clearTimeout(newTimer);
             }
         };
-    }, [value]); // Re-run the effect when `value` changes
+    }, [value]);
 
-    // Handle city selection
+    // Reset state when input is cleared
+    useEffect(() => {
+        if (value === "") {
+            setSelectedCity(null);
+            setVal(null); // Reset parent state
+            setShowDropdown(false);
+            setCities([]);
+        }
+    }, [value]);
+
     const handleSelectCity = (city: Bahnhof) => {
         setValue(city.name);
-        setSelectedCity(city)
+        setSelectedCity(city);
         setShowDropdown(false);
     };
 
     useEffect(() => {
         const closeDropdown = (e: MouseEvent) => {
             if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
-                if (listRef.current && !listRef.current.contains(e.target as Node))
-                setShowDropdown(false);
-                if (debounceTimer)
+                if (listRef.current && !listRef.current.contains(e.target as Node)) {
+                    setShowDropdown(false);
+                }
+                if (debounceTimer) {
                     clearTimeout(debounceTimer);
+                }
             }
-        }
+        };
 
         document.addEventListener("mousedown", closeDropdown);
         return () => {
             document.removeEventListener("mousedown", closeDropdown);
-        }
+        };
     }, [inputRef.current]);
 
     useEffect(() => {
-        if (selectedCity)
-            setVal(selectedCity);
+        setVal(selectedCity);
     }, [selectedCity]);
 
     return (
@@ -97,13 +103,14 @@ export default function Searchbox({setVal, placeholder, title, ...props}: Search
                 placeholder={placeholder}
                 ref={inputRef}
                 value={value}
-                onChange={e => setValue(e.target.value)}
-                onFocus={() => cities.length > 0 && setShowDropdown(true)} // Show dropdown on focus if there are results
+                onChange={(e) => setValue(e.target.value)}
+                onFocus={() => cities.length > 0 && setShowDropdown(true)}
             />
-
-            {/* Render dropdown if cities are available */}
             {showDropdown && cities.length > 0 && (
-                <ul ref={listRef} className="z-10 absolute bg-background border border-gray-300 mt-16 w-96 rounded-md shadow-lg max-h-60 overflow-auto">
+                <ul
+                    ref={listRef}
+                    className="z-10 absolute bg-background border border-gray-300 mt-16 w-96 rounded-md shadow-lg max-h-60 overflow-auto"
+                >
                     {cities.map((city) => (
                         <li
                             key={city.name}
