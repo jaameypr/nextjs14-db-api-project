@@ -40,7 +40,7 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
             console.log(selectedStart.evaNumbers[0].number);
             try {
                 setLoading(true)
-                const res = await getStationsDepatures(selectedStart.evaNumbers[0].number);
+                const res = await getStationsDepatures(selectedStart.evaNumbers[0].number, selectedDate);
                 if (res && res.length > 0) {
                     setDepartureMode(true);
                     setDepartures(res);
@@ -320,20 +320,37 @@ const JourneyLeg: React.FC<JourneyLegProps> = ({ journey, showDetails, openModal
         const bhfData: Bahnhof = await getStation(bhf);
         if (bhfData && openModal) {
             openModal({
-                title: `Bahnhof Details (${bhfData.name})`,
+                title: `Bahnhof Details (${bhfData.name !== undefined ? bhfData.name : "Unbekannt"})`,
                 content: (<>
                     <div className={"flex flex-col gap-1"}>
-                        <span className={"text-white font-medium text-md"}>Nähere Informationen zum Bahnhof</span>
-                        <div className={"flex flex-row gap-2"}>
-                            <BooleanIcon icon={<ParkingCircle/>} bool={bhfData.hasParking} description={"Parkmöglichkeiten"}/>
-                            <BooleanIcon icon={<BikeIcon/>} bool={bhfData.hasBicycleParking} description={"Fahrrad Stellplatz"}/>
-                            <BooleanIcon icon={<Toilet/>} bool={bhfData.hasPublicFacilities} description={"Toiletten"}/>
-                            <BooleanIcon icon={<CarTaxiFront/>} bool={bhfData.hasTaxiRank} description={"Taxis"}/>
-                            <BooleanIcon icon={<Wheelchair/>} bool={bhfData.hasSteplessAccess} description={"Barrierefreier Zugang / Aufzug"}/>
-                            <BooleanIcon icon={<WifiIcon/>} bool={bhfData.hasWiFi} description={"Kostenfreies WLAN"}/>
-                            <BooleanIcon icon={<TrainIcon/>} bool={bhfData.hasTravelCenter} description={"Reisezentrum"}/>
-                            <BooleanIcon icon={<CarIcon/>} bool={bhfData.hasCarRental} description={"Fahrzeugvermietung"}/>
-                        </div>
+                        {bhfData.name !== undefined ? (
+                            <>
+                                <span
+                                    className={"text-white font-medium text-md"}>Nähere Informationen zum Bahnhof</span>
+                                <div className={"flex flex-row gap-2"}>
+                                    <BooleanIcon icon={<ParkingCircle/>} bool={bhfData.hasParking}
+                                                 description={"Parkmöglichkeiten"}/>
+                                    <BooleanIcon icon={<BikeIcon/>} bool={bhfData.hasBicycleParking}
+                                                 description={"Fahrrad Stellplatz"}/>
+                                    <BooleanIcon icon={<Toilet/>} bool={bhfData.hasPublicFacilities}
+                                                 description={"Toiletten"}/>
+                                    <BooleanIcon icon={<CarTaxiFront/>} bool={bhfData.hasTaxiRank}
+                                                 description={"Taxis"}/>
+                                    <BooleanIcon icon={<Wheelchair/>} bool={bhfData.hasSteplessAccess}
+                                                 description={"Barrierefreier Zugang / Aufzug"}/>
+                                    <BooleanIcon icon={<WifiIcon/>} bool={bhfData.hasWiFi}
+                                                 description={"Kostenfreies WLAN"}/>
+                                    <BooleanIcon icon={<TrainIcon/>} bool={bhfData.hasTravelCenter}
+                                                 description={"Reisezentrum"}/>
+                                    <BooleanIcon icon={<CarIcon/>} bool={bhfData.hasCarRental}
+                                                 description={"Fahrzeugvermietung"}/>
+                                </div>
+                            </>
+                        ) : (<>
+                            <span className={"text-white font-medium text-md"}>Keine Informationen zum Bahnhof</span>
+                            </>
+                        )}
+
                     </div>
                 </>)
             })
@@ -342,25 +359,27 @@ const JourneyLeg: React.FC<JourneyLegProps> = ({ journey, showDetails, openModal
 
     return (
         <div className="w-full p-2 shadow rounded-lg">
-            <div className={cn("mx-4 items-center bg-gray-700 text-white rounded-lg px-2 py-1", showDetails ? "grid grid-cols-3" : "flex flex-row justify-center")}>
+            <div
+                className={cn("mx-4 items-center bg-gray-700 text-white rounded-lg px-2 py-1", showDetails ? "grid grid-cols-3" : "flex flex-row justify-center")}>
                 {showDetails && (<StopBtn hBC={handleBahnhofClicked} journey={journey}/>)}
-                <span className="font-semibold text-xs text-center">{journey.line != undefined ? journey.line.name : "🚶"}</span>
+                <span
+                    className="font-semibold text-xs text-center">{journey.line != undefined ? journey.line.name : "🚶"}</span>
                 {showDetails && (<StopBtnA hBC={handleBahnhofClicked} journey={journey}/>)}
             </div>
         </div>
     );
 };
 
-const StopBtn = ({journey, hBC} : { journey: Journey, hBC: (bhf:string) => void}) => (
-    <>{ journey.stop.id !== null ? (
+const StopBtn = ({journey, hBC}: { journey: Journey, hBC: (bhf: string) => void }) => (
+    <>{journey.stop.id !== null ? (
         <Button variant={"link"} onClick={async () => await hBC(journey.stop.id)}>{journey.stop.name}</Button>
     ) : (
         <span>{journey.stop.name}</span>
     )}</>
 )
 
-const StopBtnA = ({journey, hBC} : { journey: Journey, hBC: (bhf:string) => void}) => (
-    <>{ journey.destination.id !== null ? (
+const StopBtnA = ({journey, hBC}: { journey: Journey, hBC: (bhf: string) => void }) => (
+    <>{journey.destination.id !== null ? (
         <Button variant={"link"} onClick={async () => await hBC(journey.destination.id)}>{journey.destination.name}</Button>
     ) : (
         <span>{journey.destination.name}</span>

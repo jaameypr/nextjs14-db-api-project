@@ -1,32 +1,44 @@
-import {Dispatch, SetStateAction, useEffect, useState} from "react";
+"use client";
 
-const TimePicker = ({setTimeRef}: {setTimeRef: Dispatch<SetStateAction<Date | undefined>>}) => {
-    const [time, setTime] = useState<Date>(new Date());
+import { useEffect, useState } from "react";
+
+const TimePicker = ({
+                        initialTime,
+                        onTimeChange,
+                    }: {
+    initialTime: Date | null;
+    onTimeChange: (time: Date) => void;
+}) => {
+    const [time, setTime] = useState<Date>(initialTime || new Date());
 
     const addMinutes = (minutes: number) => {
-        const newTime = new Date(time);
-        newTime.setMinutes(time.getMinutes() + minutes);
-        setTime(newTime);
+        setTime((prevTime) => {
+            const newTime = new Date(prevTime);
+            newTime.setMinutes(newTime.getMinutes() + minutes);
+            return newTime;
+        });
     };
 
     const addHours = (hours: number) => {
-        const newTime = new Date(time);
-        newTime.setHours(time.getHours() + hours);
-        setTime(newTime);
+        setTime((prevTime) => {
+            const newTime = new Date(prevTime);
+            newTime.setHours(newTime.getHours() + hours);
+            return newTime;
+        });
     };
 
     const setNow = () => {
-        setTime(new Date());
+        const now = new Date();
+        setTime(now);
     };
 
-    // Helper function to format time as HH:mm
     const formatTime = (date: Date) => {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     };
 
     useEffect(() => {
-        return setTimeRef(time);
-    }, [time]);
+        onTimeChange(time);
+    }, [time, onTimeChange]);
 
     return (
         <div className="time-picker-container flex items-center space-x-4">

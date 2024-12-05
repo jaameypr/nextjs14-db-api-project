@@ -79,8 +79,9 @@ async function getJourneyWithDepature(from: number, to: number, departure: Date)
     return data;
 }
 
-async function getStationsDepatures(station: number) {
-    const apiUrl = `https://v5.db.transport.rest/stops/${station}/departures?results=5`;
+async function getStationsDepatures(station: number, depa: Date) {
+    const departure = depa.toISOString(); // Convert Date to ISO 8601 format
+    const apiUrl = `https://v5.db.transport.rest/stops/${station}/departures?results=5&when=${departure}`;
     const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
