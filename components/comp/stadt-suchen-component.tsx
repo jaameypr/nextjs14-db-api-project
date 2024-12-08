@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { HTMLAttributes, useEffect, useRef, useState } from "react";
-import { getStations } from "@/lib/apiCalls";
+import {getStationsV2} from "@/lib/apiCalls";
 import { Bahnhof } from "@/lib/types/type";
 
 interface SearchboxProps extends HTMLAttributes<HTMLDivElement> {
@@ -27,13 +27,18 @@ export default function Searchbox({ setVal, placeholder, title, ...props }: Sear
         }
 
         try {
-            const res = await getStations(value);
+            const res = await getStationsV2(value);
+
             setCities(res);
             setShowDropdown(true);
         } catch (error) {
             console.error("Error fetching cities:", error);
         }
     };
+
+    useEffect(() => {
+        console.log("Cities:", cities);
+    }, [cities]);
 
     const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
     useEffect(() => {

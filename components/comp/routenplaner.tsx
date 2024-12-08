@@ -30,17 +30,17 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
     const [routes, setRoutes] = useState<JourneyResponse>()
     const [loading, setLoading] = useState<boolean>(false);
 
-    const [searchedStart, setSearchedStart] = useState<number>();
-    const [searchedEnd, setSearchedEnd] = useState<number>();
+    const [searchedStart, setSearchedStart] = useState<string>();
+    const [searchedEnd, setSearchedEnd] = useState<string>();
 
     const [expandedSection, setExpandedSection] = useState<JourneyWrapper>();
 
     const handleSubmit = async () => {
-        if (selectedStart != null && selectedStart.evaNumbers.length > 0 && (selectedEnd == undefined) && selectedDate != null) {
-            console.log(selectedStart.evaNumbers[0].number);
+        if (selectedStart != null && selectedStart.id != "" && (selectedEnd == undefined) && selectedDate != null) {
+            console.log(selectedStart.id);
             try {
                 setLoading(true)
-                const res = await getStationsDepatures(selectedStart.evaNumbers[0].number, selectedDate);
+                const res = await getStationsDepatures(selectedStart.id, selectedDate);
                 if (res && res.length > 0) {
                     setDepartureMode(true);
                     setDepartures(res);
@@ -56,17 +56,17 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
                 setRoutes(undefined);
                 console.error(error)
             }
-        } else if (selectedStart != null && selectedStart.evaNumbers.length > 0 && selectedEnd != null && selectedEnd.evaNumbers.length > 0 && selectedDate != null) {
+        } else if (selectedStart != null && selectedStart.id != "" && selectedEnd != null && selectedEnd.id != "" && selectedDate != null) {
             try {
                 setLoading(true);
-                const res = await getJourneyWithDepature(selectedStart.evaNumbers[0].number, selectedEnd.evaNumbers[0].number, selectedDate);
+                const res = await getJourneyWithDepature(selectedStart.id, selectedEnd.id, selectedDate);
                 if (res && res.journeys && res.journeys.length > 0) {
                     setDepartureMode(false);
                     setDepartures(undefined);
                     setRoutes(res);
                     toast({title: "Route gefunden", description: "Die Route wurde erfolgreich gefunden"});
-                    setSearchedEnd(selectedEnd.evaNumbers[0].number);
-                    setSearchedStart(selectedStart.evaNumbers[0].number);
+                    setSearchedEnd(selectedEnd.id);
+                    setSearchedStart(selectedStart.id);
                 } else {
                     setDepartures(undefined);
                     setRoutes(undefined);

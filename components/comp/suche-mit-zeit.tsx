@@ -6,10 +6,10 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import addDays from "date-fns/addDays";
 import { Button } from "@/components/ui/button";
 import TimePicker from "@/components/comp/timepicker";
 import { PopoverClose } from "@radix-ui/react-popover";
+import {addDays} from "date-fns";
 
 export default function DateSearch({ setSelectedDate }: { setSelectedDate: (date: Date) => void }) {
     const [date, setDate] = useState<Date | null>(null);
@@ -63,6 +63,7 @@ export default function DateSearch({ setSelectedDate }: { setSelectedDate: (date
                     </SelectContent>
                 </Select>
                 <div className="rounded-md border">
+                    {/* @ts-ignore */}
                     <Calendar mode="single" selected={date} onSelect={setDate} />
                 </div>
 

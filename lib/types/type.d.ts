@@ -19,12 +19,7 @@ export interface Bahnhof {
     hasDBLounge: boolean,
     hasCarRental: boolean,
     federalState: string,
-    evaNumbers: BahnhofEvaNumber[],
-}
-
-export interface BahnhofEvaNumber {
-    number: number;
-    isMain:boolean
+    id: string,
 }
 
 export interface JourneyResponse {

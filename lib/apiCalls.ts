@@ -1,28 +1,39 @@
 "use server"
-import {Journey, JourneyResponse, StationsResponse} from "@/lib/types/type";
+import {Bahnhof, Journey, JourneyResponse} from "@/lib/types/type";
 
-const apiKey = 'b22ac08f332db7d99f1fa9769962ac0b'; // Replace with your actual client secret
-const clientId = '06faa5610f6a93109a8a1e0bce36d678'; // Replace with your actual client ID
-
-async function getStations(query: string) {
-    const apiUrl = `https://apis.deutschebahn.com/db-api-marketplace/apis/station-data/v2/stations?searchstring=${query}*&logicaloperator=or&limit=5`;
-
-    console.log("Request for " + apiUrl)
-
-    const response = await fetch(apiUrl, {
+async function getStationsV2(query: string) {
+    const api = `https://v5.db.transport.rest/stations?query=${query}&limit=5&completion=true&fuzzy=true`;
+    const res = await fetch(api, {
         method: 'GET',
         headers: {
-            'DB-Api-Key': apiKey,
-            'DB-Client-Id': clientId,
+            'Accept': 'application/json',
         }
     });
 
-    if (!response.ok) {
+    if (!res.ok) {
         return [];
     }
 
-    const resData:StationsResponse = await response.json();
-    return resData.result;
+    const data:Bahnhof[] = await res.json();
+
+    return Object.values(data).map((station: Bahnhof) => {
+        return {
+            name: station.name,
+            hasParking: station.hasParking ?? false,
+            hasBicycleParking: station.hasBicycleParking ?? false,
+            hasPublicFacilities: station.hasPublicFacilities ?? false,
+            hasTaxiRank: station.hasTaxiRank ?? false,
+            hasSteplessAccess: station.hasSteplessAccess ?? false, // This might need special handling if it's "yes"/"partial"
+            hasTravelNecessities: station.hasTravelNecessities ?? false,
+            hasWiFi: station.hasWiFi ?? false,
+            hasTravelCenter: station.hasTravelCenter ?? false,
+            hasRailwayMission: station.hasRailwayMission ?? false,
+            hasDBLounge: station.hasDBLounge ?? false,
+            hasCarRental: station.hasCarRental ?? false,
+            federalState: station.federalState ?? '',
+            id: station.id ?? "",
+        } as Bahnhof;
+    });
 }
 
 async function getStation(id: string) {
@@ -58,28 +69,28 @@ async function getJourney(query: string) {
     return await res.json();
 }
 
-async function getJourneyByEarlierThan(from: number, to: number, ref: string) {
+async function getJourneyByEarlierThan(from: string, to: string, ref: string) {
     const encodedRef = encodeURIComponent(ref);
     const query = `from=${from}&to=${to}&earlierThan=${encodedRef}`;
     const data: JourneyResponse = await getJourney(query);
     return data;
 }
 
-async function getJourneyByLaterThan(from: number, to: number, ref: string) {
+async function getJourneyByLaterThan(from: string, to: string, ref: string) {
     const encodedRef = encodeURIComponent(ref);
     const query = `from=${from}&to=${to}&laterThan=${encodedRef}`;
     const data: JourneyResponse = await getJourney(query);
     return data;
 }
 
-async function getJourneyWithDepature(from: number, to: number, departure: Date) {
+async function getJourneyWithDepature(from: string, to: string, departure: Date) {
     const formattedDeparture = departure.toISOString(); // Convert Date to ISO 8601 format
     const query = `from=${from}&to=${to}&departure=${formattedDeparture}`;
     const data: JourneyResponse = await getJourney(query);
     return data;
 }
 
-async function getStationsDepatures(station: number, depa: Date) {
+async function getStationsDepatures(station: string, depa: Date) {
     const departure = depa.toISOString(); // Convert Date to ISO 8601 format
     const apiUrl = `https://v5.db.transport.rest/stops/${station}/departures?results=5&when=${departure}`;
     const response = await fetch(apiUrl, {
@@ -98,4 +109,4 @@ async function getStationsDepatures(station: number, depa: Date) {
     return data;
 }
 
-export {getStations, getJourneyWithDepature, getJourneyByEarlierThan, getJourneyByLaterThan, getStation, getStationsDepatures};
+export {getJourneyWithDepature, getJourneyByEarlierThan, getJourneyByLaterThan, getStation, getStationsDepatures, getStationsV2};
