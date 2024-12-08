@@ -9,19 +9,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import TimePicker from "@/components/comp/timepicker";
 import { PopoverClose } from "@radix-ui/react-popover";
-import {addDays} from "date-fns";
+import { addDays } from "date-fns";
 
 export default function DateSearch({ setSelectedDate }: { setSelectedDate: (date: Date) => void }) {
-    const [date, setDate] = useState<Date | null>(null);
-    const [time, setTime] = useState<Date | null>(null);
-
-    useEffect(() => {
-        if (!date) {
-            const now = new Date();
-            setTime(now);
-            setDate(now);
-        }
-    }, []);
+    const [date, setDate] = useState<Date | null>(new Date());
+    const [time, setTime] = useState<Date | null>(new Date());
 
     useEffect(() => {
         if (date && time) {
@@ -63,8 +55,11 @@ export default function DateSearch({ setSelectedDate }: { setSelectedDate: (date
                     </SelectContent>
                 </Select>
                 <div className="rounded-md border">
-                    {/* @ts-ignore */}
-                    <Calendar mode="single" selected={date} onSelect={setDate} />
+                    <Calendar
+                        mode="single"
+                        selected={date ?? new Date()}
+                        onSelect={(day) => setDate(day ?? null)}
+                    />
                 </div>
 
                 {/* Time input */}

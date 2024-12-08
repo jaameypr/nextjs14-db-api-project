@@ -19,13 +19,13 @@ const TimePicker = ({
         });
     };
 
-    const addHours = (hours: number) => {
-        setTime((prevTime) => {
-            const newTime = new Date(prevTime);
-            newTime.setHours(newTime.getHours() + hours);
-            return newTime;
-        });
-    };
+    // const addHours = (hours: number) => {
+    //     setTime((prevTime) => {
+    //         const newTime = new Date(prevTime);
+    //         newTime.setHours(newTime.getHours() + hours);
+    //         return newTime;
+    //     });
+    // };
 
     const setNow = () => {
         const now = new Date();
