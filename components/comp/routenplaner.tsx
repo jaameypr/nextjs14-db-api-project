@@ -42,16 +42,19 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
                 setLoading(true)
                 const res = await getStationsDepatures(selectedStart.id, selectedDate);
                 if (res && res.length > 0) {
+                    // Abfahrten gefunden...
                     setDepartureMode(true);
                     setDepartures(res);
                     setRoutes(undefined);
                     toast({title: "Abfahrten gefunden", description: "Die Abfahrten wurden erfolgreich gefunden"});
                 } else {
+                    // Fehlerbehandlung
                     setDepartures(undefined);
                     setRoutes(undefined);
                     toast({title: "Keine Abfahrten gefunden", description: "Es wurden keine Abfahrten gefunden."});
                 }
             }  catch (error) {
+                // Fehlerbehandlung
                 setDepartures(undefined);
                 setRoutes(undefined);
                 console.error(error)
@@ -61,6 +64,7 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
                 setLoading(true);
                 const res = await getJourneyWithDepature(selectedStart.id, selectedEnd.id, selectedDate);
                 if (res && res.journeys && res.journeys.length > 0) {
+                    // Route gefunden...
                     setDepartureMode(false);
                     setDepartures(undefined);
                     setRoutes(res);
@@ -68,19 +72,23 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
                     setSearchedEnd(selectedEnd.id);
                     setSearchedStart(selectedStart.id);
                 } else {
+                    // Fehlerbehandlung
                     setDepartures(undefined);
                     setRoutes(undefined);
                     toast({title: "Keine Route gefunden", description: "Es wurde keine Route gefunden."});
                 }
             } catch (error) {
+                // Fehlerbehandlung
                 setDepartures(undefined);
                 setRoutes(undefined);
                 console.error(error)
             }
         }
+        // lade status zurücksetzen
         setLoading(false);
     }
 
+    // Funktion um eine Route zu finden, die früher ist
     const handleEarlier = async () => {
         if (routes && routes.earlierRef && searchedEnd && searchedStart) {
             try {
@@ -99,6 +107,7 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
         setLoading(false);
     }
 
+    // Funktion um eine Route zu finden, die später ist
     const handleLater = async () => {
         if (routes && routes.laterRef && searchedEnd && searchedStart) {
             try {
@@ -117,14 +126,17 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
         setLoading(false);
     }
 
+    // Funktion um zu überprüfen, ob eine Route erweitert ist
     const isExpanded = (journey: JourneyWrapper) => {
         return expandedSection === journey;
     }
 
+    // Funktion um eine Route zu erweitern
     const expand = (journey: JourneyWrapper) => {
         setExpandedSection(journey);
     }
 
+    // Funktion um eine Route zu schließen
     const setExpanded = (expanded: boolean, journey: JourneyWrapper) => {
         if (expanded) {
             expand(journey);
@@ -133,6 +145,7 @@ export default function RoutenPlaner({ openModal }: { openModal: (config: ModalC
         }
     }
 
+    // Doppelte Routen zu entfernen...
     useEffect(() => {
         if (routes && routes.journeys) {
             const uniqueJourneys = routes.journeys.filter((journey, index, self) =>
