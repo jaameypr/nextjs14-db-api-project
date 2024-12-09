@@ -1,115 +1,119 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx"; // Importiert clsx für das dynamische Hinzufügen von CSS-Klassen
+import { twMerge } from "tailwind-merge"; // Importiert twMerge zum Zusammenführen und Optimieren von Tailwind-Klassen
 
+// Funktion zum Zusammenführen von CSS-Klassen
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+    return twMerge(clsx(inputs)); // Kombiniert clsx und twMerge, um Konflikte zwischen Tailwind-Klassen zu lösen
 }
 
 /**
- * Converts a Date object or date string to a formatted string.
+ * Konvertiert ein Date-Objekt oder einen Datumsstring in eine formatierte Zeichenkette.
  *
- * @param dateInput - The Date object or date string to be formatted.
- * @param options - Optional object to customize the output format.
- * @returns A formatted string representing the date, or an error message if the input is invalid.
+ * @param dateInput - Das Date-Objekt oder der Datumsstring, der formatiert werden soll.
+ * @param options - Optionales Objekt zur Anpassung des Ausgabeformats.
+ * @returns Eine formatierte Zeichenkette, die das Datum repräsentiert, oder eine Fehlermeldung bei ungültigem Input.
  */
 export function formatDateToString(
     dateInput: Date | string,
     options: {
-        locale?: string; // Locale for formatting (e.g., 'en-US', 'de-DE')
-        dateStyle?: "full" | "long" | "medium" | "short"; // Predefined date formats
-        timeStyle?: "full" | "long" | "medium" | "short"; // Predefined time formats
-        includeTime?: boolean; // Whether to include time in the output
+        locale?: string; // Gebietsschema für die Formatierung (z. B. 'en-US', 'de-DE')
+        dateStyle?: "full" | "long" | "medium" | "short"; // Vordefinierte Datumsformate
+        timeStyle?: "full" | "long" | "medium" | "short"; // Vordefinierte Zeitformate
+        includeTime?: boolean; // Ob die Zeit in die Ausgabe aufgenommen werden soll
     } = {}
 ): string {
     const {
-        locale = "de-DE", // Default to US English
-        dateStyle = "short",
-        timeStyle = "short",
-        includeTime = true,
+        locale = "de-DE", // Standardmäßig deutsches Gebietsschema
+        dateStyle = "short", // Standard-Datumsformat
+        timeStyle = "short", // Standard-Zeitformat
+        includeTime = true, // Standardmäßig wird die Zeit mit einbezogen
     } = options;
 
-    // Parse the input into a Date object if it's a string
+    // Konvertiert den Input in ein Date-Objekt, falls es ein String ist
     let date: Date;
     if (typeof dateInput === "string") {
         date = new Date(dateInput);
     } else if (dateInput instanceof Date) {
         date = dateInput;
-    } else
-        date = new Date(); // Use the current date/time if the input is invalid
-
-    if (isNaN(date.getTime())) {
-        date = new Date(); // Use the current date/time if the input is invalid
+    } else {
+        date = new Date(); // Verwendet das aktuelle Datum/Zeit, falls der Input ungültig ist
     }
 
-    // Format the date
+    // Überprüft, ob das Datum gültig ist
+    if (isNaN(date.getTime())) {
+        date = new Date(); // Verwendet das aktuelle Datum/Zeit, falls der Input ungültig ist
+    }
+
+    // Erstellt den Formatter für die Ausgabe
     const formatter = new Intl.DateTimeFormat(locale, {
         dateStyle,
-        ...(includeTime ? { timeStyle } : {}), // Include time style only if needed
+        ...(includeTime ? { timeStyle } : {}), // Fügt das Zeitformat hinzu, falls erforderlich
     });
 
-    return formatter.format(date);
+    return formatter.format(date); // Gibt das formatierte Datum zurück
 }
 
 /**
- * Formats a date string into only the time portion.
+ * Formatiert einen Datumsstring nur in den Zeitanteil.
  *
- * @param dateString - The input date string to be formatted.
- * @param options - Optional object to customize the output format.
- * @returns A string representing the time, or an error message if the input is invalid.
+ * @param dateString - Der Eingabe-Datumsstring, der formatiert werden soll.
+ * @param options - Optionales Objekt zur Anpassung des Ausgabeformats.
+ * @returns Eine Zeichenkette, die die Zeit repräsentiert, oder eine Fehlermeldung bei ungültigem Input.
  */
 export function formatTimeFromDateString(
     dateString: string,
     options: {
-        locale?: string; // Locale for formatting (e.g., 'en-US', 'de-DE')
-        timeStyle?: "full" | "long" | "medium" | "short"; // Predefined time formats
+        locale?: string; // Gebietsschema für die Formatierung (z. B. 'en-US', 'de-DE')
+        timeStyle?: "full" | "long" | "medium" | "short"; // Vordefinierte Zeitformate
     } = {}
 ): string {
     const {
-        locale = "de-DE", // Default to US English
-        timeStyle = "short", // Default time format
+        locale = "de-DE", // Standardmäßig deutsches Gebietsschema
+        timeStyle = "short", // Standard-Zeitformat
     } = options;
 
-    // Parse the input into a Date object
+    // Konvertiert den Input in ein Date-Objekt
     let date = new Date(dateString);
     if (isNaN(date.getTime())) {
-        date = new Date();
+        date = new Date(); // Verwendet das aktuelle Datum/Zeit, falls der Input ungültig ist
     }
 
-    // Format only the time
+    // Erstellt den Formatter für die Zeit
     const formatter = new Intl.DateTimeFormat(locale, { timeStyle });
 
-    return formatter.format(date);
+    return formatter.format(date); // Gibt die formatierte Zeit zurück
 }
 
 /**
- * Calculates the time difference between two date strings in hours.
+ * Berechnet den Zeitunterschied zwischen zwei Datumsstrings in Stunden und Minuten.
  *
- * @param startDateString - The start date string.
- * @param endDateString - The end date string.
- * @returns A formatted string representing the difference in hours and minutes.
+ * @param startDateString - Der Start-Datumsstring.
+ * @param endDateString - Der End-Datumsstring.
+ * @returns Eine formatierte Zeichenkette, die den Unterschied in Stunden und Minuten darstellt.
  */
 export function calculateTimeDifference(
     startDateString: string,
     endDateString: string
 ): string {
-    // Parse the date strings into Date objects
+    // Konvertiert die Datumsstrings in Date-Objekte
     let startDate = new Date(startDateString);
     let endDate = new Date(endDateString);
 
-    // Validate the dates
+    // Validiert die Eingaben
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        startDate = new Date()
-        endDate = new Date()
+        startDate = new Date(); // Verwendet das aktuelle Datum/Zeit bei ungültigem Input
+        endDate = new Date();
     }
 
-    // Calculate the difference in milliseconds
+    // Berechnet die Differenz in Millisekunden
     const differenceInMilliseconds = endDate.getTime() - startDate.getTime();
 
-    // Convert to hours and minutes
+    // Konvertiert die Differenz in Minuten
     const totalMinutes = Math.floor(differenceInMilliseconds / (1000 * 60));
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
+    const hours = Math.floor(totalMinutes / 60); // Extrahiert die Stunden
+    const minutes = totalMinutes % 60; // Extrahiert die verbleibenden Minuten
 
+    // Gibt den Unterschied in Stunden und Minuten zurück
     if (hours === 0) {
         return `${minutes} min`;
     }

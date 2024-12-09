@@ -1,10 +1,3 @@
-export interface StationsResponse {
-    offset: number,
-    limit: number,
-    total: number,
-    result: Bahnhof[]
-}
-
 export interface Bahnhof {
     name: string;
     hasParking: boolean,
