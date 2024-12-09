@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { HTMLAttributes, useEffect, useRef, useState } from "react";
 import {getStationsV2} from "@/lib/apiCalls";
 import { Bahnhof } from "@/lib/types/type";
+import {toast, useToast} from "@/hooks/use-toast";
 
 interface SearchboxProps extends HTMLAttributes<HTMLDivElement> {
     setVal: (value: Bahnhof | null) => void;
@@ -29,12 +30,25 @@ export default function Searchbox({ setVal, placeholder, title, ...props }: Sear
         try {
             const res = await getStationsV2(value);
 
-            setCities(res);
-            setShowDropdown(true);
+            // Check if the response contains an error
+            if (Array.isArray(res)) {
+                // Successful response, set cities
+                setCities(res);
+                setShowDropdown(true);
+            } else if ("error" in res && res.error) {
+                // Error response, handle appropriately
+                console.error("Error fetching cities:", res.message);
+                toast({title: "Fehler", description: res.message});
+                setCities([]); // Clear cities
+                setShowDropdown(false); // Hide dropdown
+            }
         } catch (error) {
-            console.error("Error fetching cities:", error);
+            console.error("Unexpected error fetching cities:", error);
+            setCities([]);
+            setShowDropdown(false);
         }
     };
+
 
     useEffect(() => {
         console.log("Cities:", cities);

@@ -17,7 +17,7 @@ import {Separator} from "@/components/ui/separator";
 import {ModalConfig} from "@/hooks/useModal";
 import {BikeIcon, CarIcon, CarTaxiFront, ParkingCircle, TrainIcon, WifiIcon} from "lucide-react";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
-import {Toilet, Wheelchair} from "@/components/comp/icons";
+import {Elevator, Toilet, Wheelchair} from "@/components/comp/icons";
 
 export default function RoutenPlaner({ openModal }: { openModal: (config: ModalConfig) => void }) {
     const [selectedStart, setSelectedStart] = useState<Bahnhof | null>();
@@ -252,6 +252,7 @@ const BooleanIcon = ({icon, bool, description}: { icon: React.ReactNode, bool: b
 const JourneyDetailsSection = ({journeyWrapper, toggle, isExpanded, openModal}: JourneyDetailsSectionProps) => {
     const handleBahnhofClicked = async (bhf: string) => {
         const bhfData: Bahnhof = await getStation(bhf);
+        bhfData.hasElevator = bhfData.hasElevator || bhfData.hasSteplessAccess;
         if (bhfData) {
             openModal({
                 title: `Bahnhof Details (${bhfData.name})`,
@@ -267,6 +268,7 @@ const JourneyDetailsSection = ({journeyWrapper, toggle, isExpanded, openModal}: 
                             <BooleanIcon icon={<WifiIcon/>} bool={bhfData.hasWiFi} description={"Kostenfreies WLAN"}/>
                             <BooleanIcon icon={<TrainIcon/>} bool={bhfData.hasTravelCenter} description={"Reisezentrum"}/>
                             <BooleanIcon icon={<CarIcon/>} bool={bhfData.hasCarRental} description={"Fahrzeugvermietung"}/>
+                            <BooleanIcon icon={<Elevator/>} bool={bhfData.hasElevator} description={"Aufzüge"}/>
                         </div>
                     </div>
                 </>)
@@ -318,6 +320,7 @@ const JourneyLeg: React.FC<JourneyLegProps> = ({ journey, showDetails, openModal
 
     const handleBahnhofClicked = async (bhf: string) => {
         const bhfData: Bahnhof = await getStation(bhf);
+        bhfData.hasElevator = bhfData.hasElevator || bhfData.hasSteplessAccess;
         if (bhfData && openModal) {
             openModal({
                 title: `Bahnhof Details (${bhfData.name !== undefined ? bhfData.name : "Unbekannt"})`,
@@ -344,6 +347,7 @@ const JourneyLeg: React.FC<JourneyLegProps> = ({ journey, showDetails, openModal
                                                  description={"Reisezentrum"}/>
                                     <BooleanIcon icon={<CarIcon/>} bool={bhfData.hasCarRental}
                                                  description={"Fahrzeugvermietung"}/>
+                                    <BooleanIcon icon={<Elevator/>} bool={bhfData.hasElevator} description={"Aufzüge"}/>
                                 </div>
                             </>
                         ) : (<>

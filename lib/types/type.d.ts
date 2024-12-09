@@ -16,6 +16,7 @@ export interface Bahnhof {
     hasWiFi: boolean,
     hasTravelCenter: boolean,
     hasRailwayMission: boolean,
+    hasElevator: boolean,
     hasDBLounge: boolean,
     hasCarRental: boolean,
     federalState: string,
